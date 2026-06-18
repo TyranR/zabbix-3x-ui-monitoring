@@ -8,24 +8,6 @@
 
 Reusable Zabbix 7.4 template for monitoring a Linux server running **3X-UI** and **Xray-core**. The template combines native Zabbix Agent 2 checks for local operating-system data with HTTP Agent API polling of the 3X-UI Panel API.
 
-Repository name:
-
-```text
-zabbix-3x-ui-monitoring
-```
-
-Template name:
-
-```text
-3X-UI Panel by Zabbix agent 2
-```
-
-Vendor/version:
-
-```text
-TyranR / 1.0b
-```
-
 ---
 
 ## What this solves
