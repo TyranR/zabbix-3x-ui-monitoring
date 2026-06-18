@@ -583,6 +583,14 @@ Name = empty
 Tags = empty
 Data = With data
 ```
+---
+
+## Project stats
+
+![GitHub stars](https://img.shields.io/github/stars/TyranR/zabbix-3x-ui-monitoring?style=social)
+![GitHub forks](https://img.shields.io/github/forks/TyranR/zabbix-3x-ui-monitoring?style=social)
+![GitHub issues](https://img.shields.io/github/issues/TyranR/zabbix-3x-ui-monitoring)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/TyranR/zabbix-3x-ui-monitoring)
 
 ---
 
