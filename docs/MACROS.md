@@ -1,6 +1,6 @@
 # 3X-UI Zabbix Template Macros
 
-This file documents all user macros used by **3X-UI Panel by Zabbix agent 2** v1.9.6.
+This file documents all user macros used by **3X-UI Panel by Zabbix agent 2** v1.11.2.
 
 Set required values at host level. Host-level values override template defaults.
 
@@ -172,3 +172,23 @@ Then enable the disabled TLS items.
 ```
 
 Then enable the disabled backup items.
+
+
+---
+
+## Graph and dashboard notes
+
+Graphs and dashboards do not introduce additional user macros.
+
+They reuse the existing data collection macros. The most relevant optional modules are:
+
+```text
+{$3XUI.WEB.CHECK}
+{$3XUI.TLS.CHECK}
+{$3XUI.BACKUP.CHECK}
+{$3XUI.CLIENT.LLD.ENABLED}
+{$3XUI.NODE.LLD.ENABLED}
+{$3XUI.OUTBOUND.LLD.ENABLED}
+```
+
+Dashboard widgets may show `No data` until the corresponding optional items, web scenario or discovery rule is enabled.

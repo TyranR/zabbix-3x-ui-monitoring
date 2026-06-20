@@ -1,6 +1,6 @@
 # 3X-UI Zabbix Template Troubleshooting
 
-Troubleshooting guide for **3X-UI Panel by Zabbix agent 2** v1.9.6.
+Troubleshooting guide for **3X-UI Panel by Zabbix agent 2** v1.11.2.
 
 ---
 
@@ -184,7 +184,7 @@ Use v1.9.4 or newer.
 
 ## Log preprocessing fails with `unterminated regexp`
 
-Use v1.9.6 or newer. Log preprocessing no longer uses regular expressions.
+Use v1.11.2 or newer. Log preprocessing no longer uses regular expressions.
 
 ---
 
@@ -269,3 +269,130 @@ API availability: 1
 Xray state: running / 1
 Database file exists: 1
 ```
+
+
+---
+
+## Dashboard widgets show `No data`
+
+Some dashboard widgets are intentionally connected to optional checks.
+
+Check whether the related module is configured and enabled:
+
+```text
+Web UI  → Web scenario enabled, {$3XUI.WEB.URL} configured
+TLS     → TLS items enabled, {$3XUI.TLS.HOST} and {$3XUI.TLS.PORT} configured
+Backup  → backup items enabled, {$3XUI.BACKUP.PATH} configured
+Nodes   → {$3XUI.NODE.LLD.ENABLED}=1 on central/admin panels only
+Clients → {$3XUI.CLIENT.LLD.ENABLED}=1 if per-client discovery is needed
+```
+
+Dashboard `No data` is expected for optional modules that are not enabled.
+
+---
+
+## Web UI response graph has no data
+
+The Web UI graph uses Zabbix web scenario items:
+
+```text
+web.test.in[3X-UI Panel Web UI Access,,bps]
+web.test.time[3X-UI Panel Web UI Access,Check 3X-UI Web UI,resp]
+```
+
+Check:
+
+```text
+Data collection → Hosts/Templates → Web
+3X-UI Panel Web UI Access = Enabled
+```
+
+Then wait for at least one web scenario interval.
+
+Also check Latest data for generated web items:
+
+```text
+Download speed for scenario "3X-UI Panel Web UI Access"
+Response time for step "Check 3X-UI Web UI"
+```
+
+---
+
+## Database health graph shows milliseconds in modification age
+
+Use v1.11.2 or newer.
+
+The trigger item remains seconds-based:
+
+```text
+3xui.db.file.age
+```
+
+The graph/dashboard item uses whole minutes:
+
+```text
+3xui.db.file.age.minutes
+```
+
+This avoids millisecond noise in graph legends.
+
+---
+
+## Traffic total is zero while upload/download have values
+
+Some 3X-UI API responses expose `up` and `down`, but not a ready-made `total` field.
+
+Current template versions calculate:
+
+```text
+total = up + down
+```
+
+for inbound and client total traffic items.
+
+If total stays zero, check the raw API item and dependent item preprocessing.
+
+---
+
+## Hosts have different item/graph counts
+
+This is expected when LLD is enabled.
+
+Different hosts may discover different numbers of:
+
+```text
+inbounds
+clients
+nodes
+outbounds
+TCP/UDP ports
+```
+
+A central panel with remote nodes normally has more objects than standalone hosts.
+
+Compare these values in Latest data:
+
+```text
+3X-UI: Inbounds total
+3X-UI: Clients total
+3X-UI: Nodes total
+3X-UI: Xray outbounds count
+```
+
+Also compare host macros:
+
+```text
+{$3XUI.CLIENT.LLD.ENABLED}
+{$3XUI.NODE.LLD.ENABLED}
+{$3XUI.OUTBOUND.LLD.ENABLED}
+```
+
+---
+
+## One graph with all discovered inbounds is missing
+
+Zabbix classic template graphs cannot dynamically put all LLD-discovered objects as separate lines on one reusable graph.
+
+Graph prototypes generate one graph per discovered object.
+
+Use aggregate template graphs for sums, or create a manual host graph/Grafana dashboard when you need all individual objects on one canvas.
