@@ -31,7 +31,7 @@ zabbix_export:
         Version 1.9 combines the planned 1.6.1-1.9 improvements: safer optional port/metrics triggers, optional Web UI scenario, optional TLS certificate checks, panel/Xray logs parsing, and optional latest-backup age calculation through vfs.dir.get[].
       vendor:
         name: TyranR
-        version: 1.11.2
+        version: 1.11.3
       groups:
         - name: Templates/Applications
       items:
@@ -100,6 +100,8 @@ zabbix_export:
           key: 3xui.api.available
           history: 30d
           description: 'Returns 1 when the server status API response is valid JSON and indicates a successful API call.'
+          valuemap:
+            name: '3X-UI Status Map'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -2130,6 +2132,8 @@ zabbix_export:
           key: 3xui.logs.panel.error_count
           history: 30d
           description: 'Number of error-like patterns in recent panel logs.'
+          valuemap:
+            name: '3X-UI OK/Error Count Map'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -2327,6 +2331,8 @@ zabbix_export:
           key: 3xui.logs.xray.error_count
           history: 30d
           description: 'Number of error-like patterns in recent Xray logs.'
+          valuemap:
+            name: '3X-UI OK/Error Count Map'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -2674,6 +2680,8 @@ zabbix_export:
           key: 3xui.nodes.heartbeat.stale
           history: 30d
           description: 'Number of nodes whose last heartbeat timestamp is present and older than {$3XUI.NODE.HEARTBEAT.MAXAGE} seconds.'
+          valuemap:
+            name: '3X-UI OK/Error Count Map'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -2824,6 +2832,8 @@ zabbix_export:
           key: 3xui.nodes.unhealthy
           history: 30d
           description: 'Number of nodes whose status/health field is present and does not look healthy, online, running, ok, active or connected. Nodes without status field are ignored.'
+          valuemap:
+            name: '3X-UI OK/Error Count Map'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -2887,12 +2897,33 @@ zabbix_export:
                   value: node
                 - tag: scope
                   value: trigger
+        - uuid: 4a148c90efbe48889b1b370364be3c7c
+          name: '3X-UI: panel process status'
+          type: DEPENDENT
+          key: 3xui.panel.process.status
+          history: 30d
+          description: 'Dashboard-friendly panel process status. Returns 1=active when the panel process count is greater than 0, otherwise 0=down.'
+          valuemap:
+            name: '3X-UI Status Map'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return Number(value)>0 ? 1 : 0;'
+          master_item:
+            key: 'proc.num[{$3XUI.PROCESS.PANEL}]'
+          tags:
+            - tag: component
+              value: dashboard
+            - tag: scope
+              value: status
         - uuid: a8a294613dcb485cb4852bbcd64688a2
           name: '3X-UI update available'
           type: DEPENDENT
           key: 3xui.panel.update.available
           history: 30d
           description: 'Returns 1 when the update endpoint reports a different latest panel version. Returns 0 when current/latest version cannot be determined.'
+          valuemap:
+            name: '3X-UI OK/Error Count Map'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -3094,6 +3125,8 @@ zabbix_export:
           key: 3xui.xray.metrics.enabled
           history: 30d
           description: 'Returns 1 when Xray metrics state endpoint appears configured/enabled. Returns 0 for empty or disabled state.'
+          valuemap:
+            name: '3X-UI Enabled Map'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -3473,6 +3506,25 @@ zabbix_export:
               value: traffic
             - tag: scope
               value: metric
+        - uuid: 4a79a95914234057bee459704136159e
+          name: '3X-UI: Xray process status'
+          type: DEPENDENT
+          key: 3xui.xray.process.status
+          history: 30d
+          description: 'Dashboard-friendly Xray process status. Returns 1=active when the Xray process count is greater than 0, otherwise 0=down.'
+          valuemap:
+            name: '3X-UI Status Map'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - 'return Number(value)>0 ? 1 : 0;'
+          master_item:
+            key: 'proc.num[,,,{$3XUI.PROCESS.XRAY}]'
+          tags:
+            - tag: component
+              value: dashboard
+            - tag: scope
+              value: status
         - uuid: b01643f5b64f4f5586455f846cd5f7ce
           name: '3X-UI: Xray result error patterns'
           type: DEPENDENT
@@ -3575,6 +3627,8 @@ zabbix_export:
           key: 3xui.xray.state
           history: 30d
           description: 'Numeric Xray state from the API: 1=running, 0=stopped, 2=error, 3=unknown.'
+          valuemap:
+            name: '3X-UI Xray State Map'
           preprocessing:
             - type: JAVASCRIPT
               parameters:
@@ -6265,6 +6319,9 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '20'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -6291,6 +6348,12 @@ zabbix_export:
                     - type: INTEGER
                       name: units_pos
                       value: '3'
+                    - type: INTEGER
+                      name: units_size
+                      value: '20'
+                    - type: INTEGER
+                      name: value_size
+                      value: '20'
                 - type: graph
                   'y': '3'
                   width: '36'
@@ -6331,7 +6394,7 @@ zabbix_export:
                       name: reference
                       value: QTXPE
                 - type: item
-                  name: 'Xray state'
+                  name: 'Xray API state'
                   x: '9'
                   width: '9'
                   height: '3'
@@ -6339,6 +6402,9 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '20'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -6347,12 +6413,42 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: FFB000
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '3'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
                     - type: INTEGER
                       name: units_pos
                       value: '3'
+                    - type: INTEGER
+                      name: units_size
+                      value: '20'
+                    - type: INTEGER
+                      name: value_size
+                      value: '20'
                 - type: item
                   name: 'Panel proc'
                   x: '18'
@@ -6362,20 +6458,41 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '20'
                     - type: ITEM
                       name: itemid.0
                       value:
                         host: '3X-UI Panel by Zabbix agent 2'
-                        key: 'proc.num[{$3XUI.PROCESS.PANEL}]'
+                        key: 3xui.panel.process.status
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
                     - type: INTEGER
                       name: units_pos
                       value: '3'
+                    - type: INTEGER
+                      name: units_size
+                      value: '20'
+                    - type: INTEGER
+                      name: value_size
+                      value: '20'
                 - type: item
                   name: 'Xray proc'
                   x: '27'
@@ -6385,20 +6502,41 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '20'
                     - type: ITEM
                       name: itemid.0
                       value:
                         host: '3X-UI Panel by Zabbix agent 2'
-                        key: 'proc.num[,,,{$3XUI.PROCESS.XRAY}]'
+                        key: 3xui.xray.process.status
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
                     - type: INTEGER
                       name: units_pos
                       value: '3'
+                    - type: INTEGER
+                      name: units_size
+                      value: '20'
+                    - type: INTEGER
+                      name: value_size
+                      value: '20'
                 - type: item
                   name: 'Online clients'
                   x: '36'
@@ -6467,6 +6605,18 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
@@ -6513,6 +6663,24 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFB000
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '3'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '14'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
@@ -6707,6 +6875,18 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
@@ -6882,7 +7062,7 @@ zabbix_export:
             - name: 'Nodes & Xray'
               widgets:
                 - type: item
-                  name: 'Xray state text'
+                  name: 'Xray API state'
                   width: '9'
                   height: '3'
                   fields:
@@ -6891,15 +7071,39 @@ zabbix_export:
                       value: '0'
                     - type: INTEGER
                       name: decimal_size
-                      value: '25'
+                      value: '20'
                     - type: ITEM
                       name: itemid.0
                       value:
                         host: '3X-UI Panel by Zabbix agent 2'
-                        key: 3xui.xray.state.text
+                        key: 3xui.xray.state
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: FFB000
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '3'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
@@ -6908,10 +7112,10 @@ zabbix_export:
                       value: '3'
                     - type: INTEGER
                       name: units_size
-                      value: '25'
+                      value: '20'
                     - type: INTEGER
                       name: value_size
-                      value: '25'
+                      value: '20'
                 - type: graph
                   'y': '3'
                   width: '36'
@@ -6983,6 +7187,9 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '15'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -6991,12 +7198,30 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
                     - type: INTEGER
                       name: units_pos
                       value: '3'
+                    - type: INTEGER
+                      name: units_size
+                      value: '15'
+                    - type: INTEGER
+                      name: value_size
+                      value: '15'
                 - type: item
                   name: 'Panel update'
                   x: '27'
@@ -7006,6 +7231,9 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '30'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -7014,12 +7242,30 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFB000
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
                     - type: INTEGER
                       name: units_pos
                       value: '3'
+                    - type: INTEGER
+                      name: units_size
+                      value: '30'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
                 - type: item
                   name: 'Nodes total'
                   x: '36'
@@ -7117,6 +7363,9 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '30'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -7125,12 +7374,30 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
                     - type: INTEGER
                       name: units_pos
                       value: '3'
+                    - type: INTEGER
+                      name: units_size
+                      value: '30'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
                 - type: item
                   name: 'Stale heartbeat'
                   x: '63'
@@ -7140,6 +7407,9 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '30'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -7148,12 +7418,30 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
                     - type: INTEGER
                       name: units_pos
                       value: '3'
+                    - type: INTEGER
+                      name: units_size
+                      value: '30'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
             - name: 'Web, TLS, Logs & Backup'
               widgets:
                 - type: item
@@ -7172,6 +7460,18 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
@@ -7234,6 +7534,24 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFB000
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '3'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '14'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
@@ -7272,9 +7590,6 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
-                    - type: INTEGER
-                      name: decimal_size
-                      value: '30'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -7289,12 +7604,6 @@ zabbix_export:
                     - type: INTEGER
                       name: units_pos
                       value: '3'
-                    - type: INTEGER
-                      name: units_size
-                      value: '30'
-                    - type: INTEGER
-                      name: value_size
-                      value: '30'
                 - type: item
                   name: 'Backup count'
                   x: '36'
@@ -7306,7 +7615,7 @@ zabbix_export:
                       value: '0'
                     - type: INTEGER
                       name: decimal_size
-                      value: '30'
+                      value: '20'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -7323,10 +7632,10 @@ zabbix_export:
                       value: '3'
                     - type: INTEGER
                       name: units_size
-                      value: '30'
+                      value: '20'
                     - type: INTEGER
                       name: value_size
-                      value: '30'
+                      value: '20'
                 - type: graph
                   x: '36'
                   'y': '3'
@@ -7380,7 +7689,7 @@ zabbix_export:
                       value: '0'
                     - type: INTEGER
                       name: decimal_size
-                      value: '30'
+                      value: '20'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -7397,10 +7706,10 @@ zabbix_export:
                       value: '3'
                     - type: INTEGER
                       name: units_size
-                      value: '30'
+                      value: '20'
                     - type: INTEGER
                       name: value_size
-                      value: '30'
+                      value: '20'
                 - type: item
                   name: 'Panel log errors'
                   x: '54'
@@ -7418,6 +7727,18 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
@@ -7433,6 +7754,9 @@ zabbix_export:
                     - type: INTEGER
                       name: decimal_places
                       value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '30'
                     - type: ITEM
                       name: itemid.0
                       value:
@@ -7441,12 +7765,61 @@ zabbix_export:
                     - type: INTEGER
                       name: show.0
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 00FF00
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: E65660
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
                     - type: INTEGER
                       name: units_bold
                       value: '0'
                     - type: INTEGER
                       name: units_pos
                       value: '3'
+                    - type: INTEGER
+                      name: units_size
+                      value: '30'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+      valuemaps:
+        - uuid: 5bfe91eeae91474a865a0081248a9353
+          name: '3X-UI Enabled Map'
+          mappings:
+            - value: '1'
+              newvalue: enabled
+            - value: '0'
+              newvalue: disabled
+        - uuid: d08848d346e4490b99fff9ac45635082
+          name: '3X-UI OK/Error Count Map'
+          mappings:
+            - value: '0'
+              newvalue: ok
+        - uuid: 4b41a8d67fcb444c8b21e71e565432dc
+          name: '3X-UI Status Map'
+          mappings:
+            - value: '1'
+              newvalue: active
+            - value: '0'
+              newvalue: down
+        - uuid: 40f4629ed8144c438fab74101acf937e
+          name: '3X-UI Xray State Map'
+          mappings:
+            - value: '1'
+              newvalue: running
+            - value: '0'
+              newvalue: stopped
+            - value: '2'
+              newvalue: error
+            - value: '3'
+              newvalue: unknown
   triggers:
     - uuid: 619e29429d7d40b0a68cf407ec9df8a4
       expression: 'last(/3X-UI Panel by Zabbix agent 2/3xui.inbounds.total)>0 and last(/3X-UI Panel by Zabbix agent 2/3xui.inbounds.enabled)=0'
