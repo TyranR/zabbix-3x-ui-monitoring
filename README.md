@@ -380,19 +380,10 @@ docs/screenshots/dashboard-traffic.png
 docs/screenshots/dashboard-inbounds-clients.png
 docs/screenshots/dashboard-nodes-xray.png
 docs/screenshots/dashboard-web-tls-logs-backup.png
-docs/screenshots/graphs-traffic.png
-docs/screenshots/graphs-web-response.png
-docs/screenshots/latest-data-overview.png
-docs/screenshots/problems-empty.png
 ```
 
-Example section:
-
-```markdown
 ### Dashboard overview
-
 ![Dashboard overview](docs/screenshots/dashboard-overview.png)
-```
 
 ---
 
