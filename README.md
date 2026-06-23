@@ -369,22 +369,11 @@ These features are intentionally off by default:
 ---
 
 ## Screenshots
-
-Add screenshots under `docs/screenshots/`.
-
-Suggested files:
-
-```text
-docs/screenshots/dashboard-overview.png
-docs/screenshots/dashboard-traffic.png
-docs/screenshots/dashboard-inbounds-clients.png
-docs/screenshots/dashboard-nodes-xray.png
-docs/screenshots/dashboard-web-tls-logs-backup.png
-```
-
-### Dashboard overview
 ![Dashboard overview](docs/screenshots/dashboard-overview.png)
-
+![Dashboard traffic](docs/screenshots/dashboard-traffic.png)
+![Dashboard inbounds & clients](docs/screenshots/dashboard-inbounds-clients.png)
+![Dashboard nodes & xray](docs/screenshots/dashboard-nodes-xray.png)
+![Dashboard web, tls, logs, backup](docs/screenshots/dashboard-web-tls-logs-backup.png)
 ---
 
 ## Troubleshooting
